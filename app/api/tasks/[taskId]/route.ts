@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { errorResponse } from "@/lib/api";
 import { patchTaskSchema } from "@/lib/schemas";
+import { normalizeTaskCompletion, normalizeTaskStatus } from "@/lib/task-logic";
 
 export async function GET(_: NextRequest, context: { params: Promise<{ taskId: string }> }) {
   const { taskId } = await context.params;
@@ -11,6 +12,12 @@ export async function GET(_: NextRequest, context: { params: Promise<{ taskId: s
     include: {
       steps: { orderBy: { position: "asc" } },
       messages: { orderBy: { createdAt: "asc" } },
+      template: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
     },
   });
 
@@ -36,22 +43,42 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ t
     return errorResponse(parsed.error.issues[0]?.message ?? "Invalid task update payload.", 400);
   }
 
-  const { isComplete, title, objective } = parsed.data;
+  const { isComplete, title, objective, status, priority, scheduledFor, dueDate, estimatedMinutes, actualMinutes, reviewNotes, reminderAt } =
+    parsed.data;
+
+  const nextStatus =
+    typeof isComplete === "boolean"
+      ? normalizeTaskStatus({ status, isComplete })
+      : status
+        ? status
+        : existing.status;
+  const nextIsComplete =
+    typeof isComplete === "boolean" ? isComplete : normalizeTaskCompletion(nextStatus);
+  const shouldMarkCompleteAt = nextStatus === "DONE" || nextIsComplete;
 
   const updated = await prisma.$transaction(async (tx) => {
-    if (typeof isComplete === "boolean") {
+    if (typeof isComplete === "boolean" || (status === "DONE" && typeof isComplete !== "boolean")) {
       await tx.step.updateMany({
         where: { taskId },
-        data: { isComplete },
+        data: { isComplete: nextIsComplete },
       });
     }
 
     await tx.task.update({
       where: { id: taskId },
       data: {
-        ...(typeof isComplete === "boolean" ? { isComplete } : {}),
+        isComplete: nextIsComplete,
+        status: nextStatus,
         ...(title !== undefined ? { title } : {}),
         ...(objective !== undefined ? { objective } : {}),
+        ...(priority !== undefined ? { priority } : {}),
+        ...(scheduledFor !== undefined ? { scheduledFor } : {}),
+        ...(dueDate !== undefined ? { dueDate } : {}),
+        ...(estimatedMinutes !== undefined ? { estimatedMinutes } : {}),
+        ...(actualMinutes !== undefined ? { actualMinutes } : {}),
+        ...(reviewNotes !== undefined ? { reviewNotes } : {}),
+        ...(reminderAt !== undefined ? { reminderAt } : {}),
+        completedAt: shouldMarkCompleteAt ? new Date() : null,
       },
     });
 
@@ -60,6 +87,12 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ t
       include: {
         steps: { orderBy: { position: "asc" } },
         messages: { orderBy: { createdAt: "asc" } },
+        template: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
     });
   });

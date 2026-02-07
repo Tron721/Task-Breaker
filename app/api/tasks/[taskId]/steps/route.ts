@@ -34,7 +34,11 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ta
 
   await prisma.task.update({
     where: { id: taskId },
-    data: { isComplete: false },
+    data: {
+      isComplete: false,
+      status: "NEXT",
+      completedAt: null,
+    },
   });
 
   return NextResponse.json({ step }, { status: 201 });

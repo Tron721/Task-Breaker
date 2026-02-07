@@ -1,4 +1,8 @@
 export type ChatRole = "user" | "assistant";
+export type TaskStatus = "NOW" | "NEXT" | "LATER" | "DONE";
+export type TaskPriority = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+export type RecurrenceType = "NONE" | "DAILY" | "WEEKLY";
+export type WeeklyDay = "SUN" | "MON" | "TUE" | "WED" | "THU" | "FRI" | "SAT";
 
 export type PlannerMessage = {
   role: ChatRole;

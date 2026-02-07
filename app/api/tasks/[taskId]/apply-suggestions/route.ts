@@ -32,7 +32,11 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ta
 
     await tx.task.update({
       where: { id: taskId },
-      data: { isComplete: false },
+      data: {
+        isComplete: false,
+        status: "NEXT",
+        completedAt: null,
+      },
     });
 
     return tx.step.findMany({

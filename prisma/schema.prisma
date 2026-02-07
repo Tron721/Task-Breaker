@@ -7,15 +7,50 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum TaskStatus {
+  NOW
+  NEXT
+  LATER
+  DONE
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum RecurrenceType {
+  NONE
+  DAILY
+  WEEKLY
+}
+
 model Task {
   id         String        @id @default(cuid())
   title      String
   objective  String
   isComplete Boolean       @default(false)
+  status     TaskStatus    @default(NEXT)
+  priority   TaskPriority  @default(MEDIUM)
+  scheduledFor DateTime?
+  dueDate      DateTime?
+  estimatedMinutes Int?
+  actualMinutes    Int?
+  completedAt      DateTime?
+  reviewNotes      String?
+  reminderAt       DateTime?
+  lastRemindedAt   DateTime?
+  templateId       String?
   createdAt  DateTime      @default(now())
   updatedAt  DateTime      @updatedAt
   steps      Step[]
   messages   TaskMessage[]
+  template   TaskTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+
+  @@index([status, scheduledFor, updatedAt])
+  @@index([priority, updatedAt])
 }
 
 model Step {
@@ -40,4 +75,37 @@ model TaskMessage {
   task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
 
   @@index([taskId, createdAt])
+}
+
+model TaskTemplate {
+  id               String         @id @default(cuid())
+  name             String
+  objective        String
+  priority         TaskPriority   @default(MEDIUM)
+  estimatedMinutes Int?
+  recurrence       RecurrenceType @default(NONE)
+  weeklyDays       String?
+  reminderHour     Int?
+  reminderMinute   Int?
+  timezone         String         @default("America/New_York")
+  isActive         Boolean        @default(true)
+  lastGeneratedOn  DateTime?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  steps            TemplateStep[]
+  tasks            Task[]
+
+  @@index([isActive, recurrence])
+}
+
+model TemplateStep {
+  id         String       @id @default(cuid())
+  templateId String
+  text       String
+  position   Int
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  template   TaskTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@index([templateId, position])
 }

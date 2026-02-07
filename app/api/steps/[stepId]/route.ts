@@ -37,10 +37,19 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ s
       });
 
       const taskIsComplete = deriveTaskComplete(allStepCompletion.map((item) => item.isComplete));
+      const task = await tx.task.findUnique({
+        where: { id: step.taskId },
+        select: { status: true },
+      });
+      const status = taskIsComplete ? "DONE" : task?.status === "DONE" ? "NEXT" : task?.status ?? "NEXT";
 
       await tx.task.update({
         where: { id: step.taskId },
-        data: { isComplete: taskIsComplete },
+        data: {
+          isComplete: taskIsComplete,
+          status,
+          completedAt: taskIsComplete ? new Date() : null,
+        },
       });
     }
 
@@ -80,10 +89,19 @@ export async function DELETE(_: NextRequest, context: { params: Promise<{ stepId
     );
 
     const taskIsComplete = deriveTaskComplete(remainingSteps.map((item) => item.isComplete));
+    const task = await tx.task.findUnique({
+      where: { id: step.taskId },
+      select: { status: true },
+    });
+    const status = taskIsComplete ? "DONE" : task?.status === "DONE" ? "NEXT" : task?.status ?? "NEXT";
 
     await tx.task.update({
       where: { id: step.taskId },
-      data: { isComplete: taskIsComplete },
+      data: {
+        isComplete: taskIsComplete,
+        status,
+        completedAt: taskIsComplete ? new Date() : null,
+      },
     });
 
     const normalizedSteps = await tx.step.findMany({
