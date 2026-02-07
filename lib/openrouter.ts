@@ -22,8 +22,6 @@ type RequestModelResult = {
   rawContent: string;
 };
 
-type ModelSlot = "primary" | "fallback";
-
 const DEFAULT_MODEL_PRIMARY = "google/gemini-3-flash-preview";
 const DEFAULT_MODEL_FALLBACK = "google/gemini-2.5-flash";
 

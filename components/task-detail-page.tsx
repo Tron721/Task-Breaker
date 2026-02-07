@@ -243,6 +243,7 @@ export function TaskDetailPage({ taskId }: { taskId: string }) {
 
   useEffect(() => {
     void loadTask();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [taskId]);
 
   const stepProgress = useMemo(() => {

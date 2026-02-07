@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { errorResponse } from "@/lib/api";
 import { createTaskSchema } from "@/lib/schemas";
 import { AiProviderError, generateInitialTaskPlan } from "@/lib/openrouter";
-import { endOfLocalDay, normalizeTaskCompletion, normalizeTaskStatus, startOfLocalDay } from "@/lib/task-logic";
+import { endOfLocalDay, startOfLocalDay } from "@/lib/task-logic";
 
 function deriveTitle(objective: string): string {
   const compact = objective.replace(/\s+/g, " ").trim();
@@ -93,7 +93,8 @@ export async function POST(request: NextRequest) {
     const { objective, title, status, priority, scheduledFor, dueDate, estimatedMinutes, reminderAt } = parsed.data;
 
     const aiResult = await generateInitialTaskPlan({ objective, title });
-    const normalizedStatus = normalizeTaskStatus({ status, isComplete: false });
+    const normalizedStatus = status ?? "NEXT";
+    const normalizedIsComplete = normalizedStatus === "DONE";
     const defaultScheduledFor = scheduledFor ?? startOfLocalDay(new Date());
 
     const created = await prisma.$transaction(async (tx) => {
@@ -101,14 +102,14 @@ export async function POST(request: NextRequest) {
         data: {
           title: title ?? deriveTitle(objective),
           objective,
-          isComplete: normalizeTaskCompletion(normalizedStatus),
+          isComplete: normalizedIsComplete,
           status: normalizedStatus,
           priority: priority ?? "MEDIUM",
           scheduledFor: defaultScheduledFor,
           dueDate,
           estimatedMinutes,
           reminderAt,
-          completedAt: normalizedStatus === "DONE" ? new Date() : null,
+          completedAt: normalizedIsComplete ? new Date() : null,
         },
       });
 

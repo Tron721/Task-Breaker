@@ -54,7 +54,8 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ t
         : existing.status;
   const nextIsComplete =
     typeof isComplete === "boolean" ? isComplete : normalizeTaskCompletion(nextStatus);
-  const shouldMarkCompleteAt = nextStatus === "DONE" || nextIsComplete;
+  const completedAtUpdate =
+    nextIsComplete && !existing.isComplete ? new Date() : !nextIsComplete && existing.isComplete ? null : undefined;
 
   const updated = await prisma.$transaction(async (tx) => {
     if (typeof isComplete === "boolean" || (status === "DONE" && typeof isComplete !== "boolean")) {
@@ -78,7 +79,7 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ t
         ...(actualMinutes !== undefined ? { actualMinutes } : {}),
         ...(reviewNotes !== undefined ? { reviewNotes } : {}),
         ...(reminderAt !== undefined ? { reminderAt } : {}),
-        completedAt: shouldMarkCompleteAt ? new Date() : null,
+        ...(completedAtUpdate !== undefined ? { completedAt: completedAtUpdate } : {}),
       },
     });
 

@@ -188,12 +188,14 @@ a {
 
 button,
 input,
-textarea {
+textarea,
+select {
   font: inherit;
 }
 
 input,
-textarea {
+textarea,
+select {
   width: 100%;
   color: var(--ink);
   background: #fffdf8;
@@ -211,6 +213,7 @@ textarea {
 
 input:focus-visible,
 textarea:focus-visible,
+select:focus-visible,
 button:focus-visible,
 a:focus-visible {
   outline: none;
@@ -377,6 +380,11 @@ button:disabled {
   background: #dff3b8;
 }
 
+.chip.warning {
+  color: #5e3700;
+  background: #ffe5ad;
+}
+
 .label-stack {
   gap: 0.35rem;
 }
@@ -537,6 +545,68 @@ button:disabled {
   padding: 0.52rem 0.62rem;
 }
 
+.grid.two-up {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.grid.three-up {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.select-input.slim {
+  width: auto;
+  min-width: 90px;
+  padding: 0.28rem 0.5rem;
+}
+
+.bucket-grid {
+  display: grid;
+  gap: 0.8rem;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+.bucket-column {
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  background: #fffdf6;
+  padding: 0.65rem;
+}
+
+.bucket-title {
+  margin: 0 0 0.6rem;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.overdue-row {
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 0.5rem 0.6rem;
+  background: #fff0d7;
+}
+
+.day-checkbox {
+  border: 2px solid var(--border);
+  border-radius: 999px;
+  background: #fff4d9;
+  padding: 0.2rem 0.52rem;
+}
+
+.plain-list {
+  margin: 0;
+  padding-left: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+@media (min-width: 900px) {
+  .bucket-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 900px) {
   .task-card {
     flex-direction: column;
@@ -544,6 +614,11 @@ button:disabled {
 
   .step-actions {
     justify-content: flex-start;
+  }
+
+  .grid.two-up,
+  .grid.three-up {
+    grid-template-columns: 1fr;
   }
 }
 

@@ -1,4 +1,4 @@
-import { type RecurrenceType, type TaskStatus, type WeeklyDay } from "@/lib/types";
+import { type RecurrenceType, type TaskStatus, type WeeklyDay } from "./types";
 
 export function deriveTaskComplete(stepCompletion: boolean[]): boolean {
   if (stepCompletion.length === 0) {
@@ -87,7 +87,13 @@ export function shouldInstantiateTemplate(input: {
   lastGeneratedOn?: Date | null;
   targetDate: Date;
 }): boolean {
-  if (!isTemplateDueOnDay(input)) {
+  if (
+    !isTemplateDueOnDay({
+      recurrence: input.recurrence,
+      weeklyDays: input.weeklyDays,
+      date: input.targetDate,
+    })
+  ) {
     return false;
   }
 

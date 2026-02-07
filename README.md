@@ -6,6 +6,10 @@ A single-user web app that turns a task objective into logical, trackable steps.
 
 - Create tasks from a natural-language objective.
 - Generate ordered steps using OpenRouter.
+- Daily workflow dashboard with Now/Next/Later/Done buckets.
+- Quick-capture form with schedule, priority, estimates, and reminders.
+- Recurring task templates (daily/weekly/manual) and one-click instantiation.
+- Morning recurring generation and end-of-day review with rollover digest.
 - Default model policy: primary Gemini 3 Flash Preview, single fallback to Gemini 2.5 Flash.
 - Store tasks, steps, and per-task chat in SQLite.
 - Toggle task and step completion.
@@ -56,3 +60,11 @@ AI-backed endpoints return `modelUsed` as `"primary"` or `"fallback"`:
 
 - `POST /api/tasks`
 - `POST /api/tasks/:taskId/chat`
+
+Workflow endpoints:
+
+- `GET /api/workflow/today`
+- `POST /api/workflow/materialize-recurring`
+- `POST /api/workflow/review`
+- `GET|POST /api/workflow/reminders`
+- `GET|POST /api/templates`
