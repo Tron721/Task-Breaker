@@ -559,6 +559,9 @@ export function TaskDetailPage({ taskId }: { taskId: string }) {
             <Link href="/" className="link-btn">
               Back to tasks
             </Link>
+            <Link href="/guide" className="link-btn">
+              Guide
+            </Link>
             <a href={`/tasks/${task.id}`} target="_blank" rel="noreferrer" className="link-btn">
               Open in new tab
             </a>

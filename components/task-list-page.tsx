@@ -488,6 +488,11 @@ export function TaskListPage() {
         <span className="badge">Daily Workflow</span>
         <h1 className="hero-title">Task Breaker Daily Operating System</h1>
         <p className="hero-subtitle">Start with recurring work, focus with Now/Next/Later, close day with rollover + digest.</p>
+        <div className="row wrap">
+          <Link href="/guide" className="link-btn">
+            Open Guide
+          </Link>
+        </div>
         <div className="kpi-grid">
           <article className="kpi-card">
             <span className="kpi-label">Today Tasks</span>
